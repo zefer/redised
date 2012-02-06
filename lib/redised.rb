@@ -13,8 +13,30 @@ module Redised
   def self.included(klass)
 
     klass.module_eval do
-      def self.redis_config
-        @redis_config ||= YAML.load_file(File.join(Rails.root, 'config', 'resque.yml'))
+      def self.redised_config
+        if @_redised_config_path
+          @_redised_config ||= YAML.load_file(@_redised_config_path)
+        end
+      end
+
+      def self.redised_config_path
+        @_redised_config_path
+      end
+
+      def self.redised_config_path=(new_path)
+        @_redised_config_path = new_path
+        @_redis = nil
+        @_redised_config = nil
+      end
+
+      def self.redised_env
+        @_redised_env ||= ENV['RAILS_ENV'] || ENV['RACK_ENV'] || nil
+      end
+
+      def self.redised_env=(new_env)
+        @_redised_env = new_env
+        @_redis = nil
+        @_redised_config = nil
       end
 
       # Accepts:
@@ -35,28 +57,31 @@ module Redised
             conn = ::Redised.redis_connection(:host => host, :port => port,
                               :thread_safe => true, :db => db)
           end
-          namespace ||= :resque
 
-          @redis = Redis::Namespace.new(namespace, :redis => conn)
-        elsif server.respond_to? :namespace=
-          @redis = server
+          @_redis = namespace ? Redis::Namespace.new(namespace, :redis => conn) : conn
         else
-          @redis = Redis::Namespace.new(:resque, :redis => server)
+          @_redis = server
         end
       end
 
-      def self.redis_namespace(new_name = nil)
-        new_name ? @namespace = new_name : @namespace
+      def self.redised_namespace(new_name = nil)
+        new_name ? @_namespace = new_name : @_namespace
       end
 
       # Returns the current Redis connection. If none has been created, will
       # create a new one.
       def self.redis
-        return @redis if @redis
-        self.redis = redis_config[redis_namespace][Rails.env]
-        self.redis
+        return @_redis if @_redis
+        if redised_config
+          self.redis = if redised_namespace
+            redised_config[redised_namespace][redised_env]
+          else
+            redised_config[redised_env]
+          end
+        end
+        @_redis
       rescue NoMethodError => e
-        raise("There was a problem setting up your redis for redis_namespace #{redis_namespace}: #{e}")
+        raise("There was a problem setting up your redis for redised_namespace #{redised_namespace} (from file #{@_redised_config_path}): #{e}")
       end
     end
 

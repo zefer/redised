@@ -4,6 +4,12 @@ class TestRedised < Test::Unit::TestCase
 
   class RedisedClass
     include Redised
+
+    redised_namespace 'mynamespace'
+  end
+
+  class OtherRedisedClass
+    include Redised
   end
 
   context "Redised" do
@@ -13,12 +19,12 @@ class TestRedised < Test::Unit::TestCase
 
     should "be able to assign the redised_config_path" do
       RedisedClass.redised_config_path = @env_config_path
-      assert_equal @env_config_path, RedisClass.redised_config_path
+      assert_equal @env_config_path, RedisedClass.redised_config_path
       assert RedisedClass.redised_config['mynamespace']
     end
 
     should "not have a default path" do
-      assert_nil RedisedClass.redis_config_path
+      assert_nil OtherRedisedClass.redised_config_path
     end
 
     should "pull default env from ENV" do
@@ -33,16 +39,17 @@ class TestRedised < Test::Unit::TestCase
 
     should "have class level redis connection" do
       RedisedClass.redised_config_path = @env_config_path
-      RedisedClass.env = 'production'
+      RedisedClass.redised_env = 'production'
       redis = RedisedClass.redis
       assert_kind_of Redis::Namespace, redis
     end
 
     should "parse redis connection with namespace" do
-      redis = RedisedClass.redis = 'localhost:5678:1/namespace'
-      assert_equal 'localhost', redis.host
-      assert_equal '5678', redis.port
-      assert_equal 1, redis.db
+      RedisedClass.redis = 'localhost:5678:0/namespace'
+      redis = RedisedClass.redis
+      assert_equal 'localhost', redis.client.host
+      assert_equal 5678, redis.client.port
+      assert_equal 0, redis.client.db
       assert_equal 'namespace', redis.namespace
     end
 
