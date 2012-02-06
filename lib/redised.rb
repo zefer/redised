@@ -37,7 +37,6 @@ module Redised
   # Set the config path to load from.
   def self.redised_config_path=(new_path)
     @_redised_config_path = new_path
-    @_redis = nil
     @_redised_config = nil
   end
 
@@ -47,7 +46,6 @@ module Redised
 
   def self.redised_env=(new_env)
     @_redised_env = new_env
-    @_redis = nil
     @_redised_config = nil
   end
 
@@ -81,7 +79,12 @@ module Redised
       end
 
       def self.redised_namespace(new_name = nil)
-        new_name ? @_namespace = new_name : @_namespace
+        if new_name
+          @_namespace = new_name
+          @_redis = nil
+        else
+          @_namespace
+        end
       end
 
       # Returns the current Redis connection. If none has been created, will
