@@ -1,43 +1,43 @@
 require 'redis/namespace'
 # Redised allows for the common patter of module access to redis, when included
 # a .redis and .redis= method are provided
-#
-# Partially ganked from resque
 module Redised
+  VERSION = '0.1.0'
 
   def self.redis_connection(params)
-    @redis_connections ||= {}
-    @redis_connections[params] ||= Redis.new(params)
+    @_redis_connections ||= {}
+    @_redis_connections[params] ||= Redis.new(params)
+  end
+
+  def self.redised_config
+    if @_redised_config_path
+      @_redised_config ||= YAML.load_file(@_redised_config_path)
+    end
+  end
+
+  def self.redised_config_path
+    @_redised_config_path
+  end
+
+  def self.redised_config_path=(new_path)
+    @_redised_config_path = new_path
+    @_redis = nil
+    @_redised_config = nil
+  end
+
+  def self.redised_env
+    @_redised_env ||= ENV['RAILS_ENV'] || ENV['RACK_ENV'] || nil
+  end
+
+  def self.redised_env=(new_env)
+    @_redised_env = new_env
+    @_redis = nil
+    @_redised_config = nil
   end
 
   def self.included(klass)
 
     klass.module_eval do
-      def self.redised_config
-        if @_redised_config_path
-          @_redised_config ||= YAML.load_file(@_redised_config_path)
-        end
-      end
-
-      def self.redised_config_path
-        @_redised_config_path
-      end
-
-      def self.redised_config_path=(new_path)
-        @_redised_config_path = new_path
-        @_redis = nil
-        @_redised_config = nil
-      end
-
-      def self.redised_env
-        @_redised_env ||= ENV['RAILS_ENV'] || ENV['RACK_ENV'] || nil
-      end
-
-      def self.redised_env=(new_env)
-        @_redised_env = new_env
-        @_redis = nil
-        @_redised_config = nil
-      end
 
       # Accepts:
       #   1. A 'hostname:port' string
@@ -72,12 +72,14 @@ module Redised
       # create a new one.
       def self.redis
         return @_redis if @_redis
-        if redised_config
+        if ::Redised.redised_config
           self.redis = if redised_namespace
-            redised_config[redised_namespace][redised_env]
+            ::Redised.redised_config[redised_namespace][::Redised.redised_env]
           else
-            redised_config[redised_env]
+            ::Redised.redised_config[::Redis.redised_env]
           end
+        else
+          self.redis = 'localhost:6379'
         end
         @_redis
       rescue NoMethodError => e

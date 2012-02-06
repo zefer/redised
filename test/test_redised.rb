@@ -18,28 +18,24 @@ class TestRedised < Test::Unit::TestCase
     end
 
     should "be able to assign the redised_config_path" do
-      RedisedClass.redised_config_path = @env_config_path
-      assert_equal @env_config_path, RedisedClass.redised_config_path
-      assert RedisedClass.redised_config['mynamespace']
-    end
-
-    should "not have a default path" do
-      assert_nil OtherRedisedClass.redised_config_path
+      Redised.redised_config_path = @env_config_path
+      assert_equal @env_config_path, Redised.redised_config_path
+      assert Redised.redised_config['mynamespace']
     end
 
     should "pull default env from ENV" do
       ENV['RAILS_ENV'] = 'production'
-      assert_equal 'production', RedisedClass.redised_env
+      assert_equal 'production', Redised.redised_env
     end
 
     should "allow for setting the env" do
-      RedisedClass.redised_env = 'dev'
-      assert_equal 'dev', RedisedClass.redised_env
+      Redised.redised_env = 'dev'
+      assert_equal 'dev', Redised.redised_env
     end
 
     should "have class level redis connection" do
-      RedisedClass.redised_config_path = @env_config_path
-      RedisedClass.redised_env = 'production'
+      Redised.redised_config_path = @env_config_path
+      Redised.redised_env = 'production'
       redis = RedisedClass.redis
       assert_kind_of Redis::Namespace, redis
     end

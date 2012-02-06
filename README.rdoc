@@ -1,6 +1,77 @@
 = redised
 
-Description goes here.
+Redised provides a simple module for establishing reusable class level namespaced redis connections
+in your vanilla Ruby classes.
+
+== Why?
+
+We use redis a lot throughout our apps. This pattern of having a class level `redis` method
+thats already namespaced and connected to a specific server via a config has served us well. 
+It has allowed us to split different usages across different namespaces and eventually
+different hosts/servers.
+
+== Usage
+
+You can include Redised as a module in your class.
+
+    class MyRedisClass
+      include Redised
+    end
+
+This now gives you the power to assign the url of the redis server you want to connect to
+as a string:
+
+    MyRedisClass.redis = 'localhost:6739:1/myredisclass' # hostname:port:db/namespace
+    # also accepts a Redis or Redis::Namespace object
+
+This gets a little easier and more powerful when you setup a YAML config:
+
+    # in config/redis.yml 
+    ---
+    mynamespace:
+      development: localhost:6379
+      production: redis01:6379/mynamespace
+    othernamespace:
+      development: localhost:6379
+      production: redis01:6379/othernamespace
+
+You can tell redised where this config lives:
+
+    Redised.redised_config_path = File.join(Rails.root, 'config', 'redis.yml')
+
+And what the 'env' is (will try to pull from RACK_ENV and RAILS_ENV):
+
+    Redised.redised_env = Rails.env #=> 'production'
+
+Then in your class you tell it what namespace config this class points to:
+
+    class MyRedisClass
+      include Redised
+
+      redised_namespace 'mynamespace'
+
+    end
+
+It will now automatically load the correct redis connection for your namespace/env:
+
+    MyRedisClass.redis #=> #<Redis::Namespace ..>
+    MyRedisClass.redis.client.host #=> 'redis01'
+    MyRedisClass.namespace #=> 'mynamespace'
+
+The implementation of the `self.redis` method is very close to the `Resque.redis` method and is
+actually a drop in replacement (if you want to load your connection settings from a config). Our
+`config/initializers/resque.rb` looks like:
+
+      module Resque
+        include Redised
+        extend self
+
+        redised_namespace 'paperless'
+      end
+
+== Acknowledgments
+
+The original parsing of URL idea came from @defunkt/resque.
 
 == Contributing to redised
  
@@ -14,6 +85,5 @@ Description goes here.
 
 == Copyright
 
-Copyright (c) 2012 Aaron Quint. See LICENSE.txt for
-further details.
+Copyright (c) 2012 Aaron Quint, Paperless Inc. See LICENSE.txt for further details.
 
