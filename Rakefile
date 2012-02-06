@@ -11,10 +11,13 @@ rescue Bundler::BundlerError => e
 end
 require 'rake'
 
+require './lib/redised'
+
 require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
   gem.name = "redised"
+  gem.version = Redised::VERSION
   gem.homepage = "http://github.com/paperlesspost/redised"
   gem.license = "MIT"
   gem.summary = %Q{a simple module that allows you to setup your class or module with a redis connection}

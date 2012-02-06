@@ -4,21 +4,37 @@ require 'redis/namespace'
 module Redised
   VERSION = '0.1.0'
 
+  # Get a reusable connection based on a set of params. The
+  # params are the same as the options you pass to `Redis.new`
+  #
+  # This ensures that an app doesnt try to open multiple connections
+  # to the same redis server.
   def self.redis_connection(params)
     @_redis_connections ||= {}
     @_redis_connections[params] ||= Redis.new(params)
   end
 
+  # Load/parse the YAML config setup at `redised_config_path`.
+  # If no config is setup, returns nil
+  #
+  # Configs are in the format:
+  #
+  #     ---
+  #     namespace:
+  #       env: url
+  #
   def self.redised_config
     if @_redised_config_path
       @_redised_config ||= YAML.load_file(@_redised_config_path)
     end
   end
 
+  # Return the config path for the YAML config.
   def self.redised_config_path
     @_redised_config_path
   end
 
+  # Set the config path to load from.
   def self.redised_config_path=(new_path)
     @_redised_config_path = new_path
     @_redis = nil
