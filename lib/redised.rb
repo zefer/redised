@@ -104,6 +104,10 @@ module Redised
       rescue NoMethodError => e
         raise("There was a problem setting up your redis for redised_namespace #{redised_namespace} (from file #{@_redised_config_path}): #{e}")
       end
+
+      def redis
+        self.class.redis
+      end
     end
 
   end
