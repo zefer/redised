@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
     "README.rdoc",
     "Rakefile",
     "lib/redised.rb",
+    "redised.gemspec",
     "test/env_redised_config.yml",
     "test/helper.rb",
     "test/test_redised.rb"
