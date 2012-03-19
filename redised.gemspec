@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "redised"
-  s.version = "0.1.0"
+  s.version = "0.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Aaron Quint"]
-  s.date = "2012-02-06"
+  s.date = "2012-03-19"
   s.description = "redised provides a single module `Redised` that when included in your class provides a self.redis= and self.redis methods. It also has the ability to load the urls from a YAML config file"
   s.email = "aaron@quirkey.com"
   s.extra_rdoc_files = [
@@ -32,7 +32,7 @@ Gem::Specification.new do |s|
   s.homepage = "http://github.com/paperlesspost/redised"
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.10"
+  s.rubygems_version = "1.8.16"
   s.summary = "a simple module that allows you to setup your class or module with a redis connection"
 
   if s.respond_to? :specification_version then
