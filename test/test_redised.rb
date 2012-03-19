@@ -49,6 +49,16 @@ class TestRedised < Test::Unit::TestCase
       assert_equal 'namespace', redis.namespace
     end
 
+    should "parse redis connection with database and password" do
+      RedisedClass.redis = 'localhost:5678:2:mypass/namespace'
+      redis = RedisedClass.redis
+      assert_equal 'localhost', redis.client.host
+      assert_equal 5678, redis.client.port
+      assert_equal 2, redis.client.db
+      assert_equal 'mypass', redis.client.password
+      assert_equal 'namespace', redis.namespace
+    end
+
   end
 
 end

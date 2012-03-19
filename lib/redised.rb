@@ -60,6 +60,7 @@ module Redised
       #   4. A redis URL string 'redis://host:port'
       #   5. An instance of `Redis`, `Redis::Client`, `Redis::DistRedis`,
       #      or `Redis::Namespace`.
+      #   6. A 'hostname:port:db:password' string (to select the Redis db & a password)
       def self.redis=(server)
         if server.respond_to? :split
 
@@ -67,9 +68,14 @@ module Redised
             conn = ::Redised.redis_connection(:url => server)
           else
             server, namespace = server.split('/', 2)
-            host, port, db = server.split(':')
-            conn = ::Redised.redis_connection(:host => host, :port => port,
-                              :thread_safe => true, :db => db)
+            host, port, db, password = server.split(':')
+            conn = ::Redised.redis_connection({
+                :host => host,
+                :port => port,
+                :thread_safe => true,
+                :db => db,
+                :password => password
+            })
           end
 
           @_redis = namespace ? Redis::Namespace.new(namespace, :redis => conn) : conn
