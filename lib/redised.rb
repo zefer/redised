@@ -2,7 +2,7 @@ require 'redis/namespace'
 # Redised allows for the common patter of module access to redis, when included
 # a .redis and .redis= method are provided
 module Redised
-  VERSION = '0.1.0'
+  VERSION = '0.2.0'
 
   # Get a reusable connection based on a set of params. The
   # params are the same as the options you pass to `Redis.new`
