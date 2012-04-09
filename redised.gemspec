@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Aaron Quint"]
-  s.date = "2012-03-19"
+  s.date = "2012-04-09"
   s.description = "redised provides a single module `Redised` that when included in your class provides a self.redis= and self.redis methods. It also has the ability to load the urls from a YAML config file"
   s.email = "aaron@quirkey.com"
   s.extra_rdoc_files = [
